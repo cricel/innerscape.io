@@ -102,42 +102,6 @@ class App extends Component {
             </tbody>
           </Table>
         </div>
-
-        {/* <Container>
-          <Row>
-            <Col xs={4} id="left-panel">
-              <Button variant="primary" onClick={() => this.getFiles() }>
-                {" "}
-                Get Files
-              </Button>
-
-              <ul>
-              <div className="d-grid gap-2">
-                {this.state.blobItems.map((item, index) => (
-                  <Button
-                    variant="outline-info"
-                    key={index}
-                    onClick={() => this.fetchTextTest(item)}
-                  >
-                    {item}
-                  </Button>
-                ))}
-                </div>
-              </ul>
-            </Col>
-            <Col xs={8} id="right-panel">
-              <Table striped bordered hover>
-                <tbody>
-                  {this.state.textContents.map((line, index) => (
-                    <tr key={index}>
-                    {line.split(",").map((item, index) => (<td key={index}>{item}</td>))}
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Col>
-          </Row>
-        </Container> */}
       </>
     );
   }
