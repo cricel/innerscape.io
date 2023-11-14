@@ -1,0 +1,136 @@
+// import Button from 'react-bootstrap/Button';
+// import Login from './Login';
+// import Image from 'react-bootstrap/Image';
+// import Container from 'react-bootstrap/Container';
+// import Row from 'react-bootstrap/Row';
+// import Col from 'react-bootstrap/Col';
+
+import './App.css'
+import { Component } from 'react';
+import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
+import { Config } from './Config';
+import { PublicClientApplication } from '@azure/msal-browser';
+
+class App extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      error: null,
+      isAuthenticated: false,
+      user: {},
+      file: null
+    }
+    this.login = this.login.bind(this)
+    this.uploadFile = this.uploadFile.bind(this);
+    this.onFileChange = this.onFileChange.bind(this);
+
+    this.PublicClientApplication = new PublicClientApplication({
+      auth:{
+        clientId: Config.appId,
+        redirectUri: Config.redirectUri,
+        authority: Config.authority
+      },
+      cache:{
+        cacheLocation: "sessionStorage",
+        storeAuthStateInCookie: true
+      }
+    });
+  }
+
+  onFileChange(event){
+    this.setState({file: event.target.files[0]});
+  }
+
+  async uploadFile(){
+    let storageAccountName = 'innerscape';
+    let sasToken = 'sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-10-25T02:52:02Z&st=2023-10-24T18:52:02Z&spr=https&sig=mb0bsH0KrU%2Bvo9kFSi66ahif1tdkcZnen4FfKqqjMIQ%3D';
+    const blobService = new BlobServiceClient(
+      `https://${storageAccountName}.blob.core.windows.net/?${sasToken}`
+      
+    )
+    console.log(`https//${storageAccountName}.blob.core.windows.net/?${sasToken}`)
+    const containerClient = blobService.getContainerClient('default');
+    // await containerClient.createIfNotExists({
+    //   access: 'container',
+    // })
+
+    const blobClient = containerClient.getBlobBatchClient(this.state.file.name);
+    const options = {blobHTTPHeaders: {blobClientType: this.state.file.type}};
+    await blobClient.uploadBrowserData(this.state.file, options);
+  }
+
+  async getFiles(){
+    let storageAccountName = 'innerscape';
+    let sasToken = 'sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-10-25T02:52:02Z&st=2023-10-24T18:52:02Z&spr=https&sig=mb0bsH0KrU%2Bvo9kFSi66ahif1tdkcZnen4FfKqqjMIQ%3D';
+    const blobService = new BlobServiceClient(
+      `https://${storageAccountName}.blob.core.windows.net/?${sasToken}`
+      
+    )
+    console.log(`https//${storageAccountName}.blob.core.windows.net/?${sasToken}`)
+    const containerClient = blobService.getContainerClient('default');
+    
+    try {
+      const blobItems = [];
+      for await (const blob of containerClient.listBlobsFlat()) {
+        blobItems.push(blob.name);
+      }
+      // Now, blobItems contains the list of file names in the container.
+      console.log(blobItems);
+    } catch (error) {
+      console.error("Error listing files:", error);
+    }
+  }
+
+  async login(){
+    console.log("Try to Login")
+    try{
+      console.log("Try to Login 1")
+      await this.PublicClientApplication.loginPopup({
+        scopes: Config.scopes,
+        prompt: "select_account"
+      });
+      this.setState({isAuthenticated:true})
+      console.log("Try to Login 2")
+    }
+    catch(err){
+      console.log("Try to Login 3")
+      this.setState({
+        isAuthenticated: false,
+        user:{},
+        error: err
+      });
+      console.log("Try to Login 4")
+      console.log(this.state.error)
+    }
+  }
+
+  logout(){
+    this.PublicClientApplication.logout();
+  }
+
+  render(){
+    return (
+      <div className='="App'>
+        <header className='App-header'>
+          {/* <img src={logo} className='App-logo' alt="logo"/> */}
+          {this.state.isAuthenticated ? 
+          <p>
+            Successful Logged In
+          </p>
+          :
+          <p>
+            <button onClick={() => this.login()}> Login</button>
+            <input onChange={this.onFileChange} type='file'></input>
+            <button onClick={() => this.uploadFile()}> Upload File</button>
+            <button onClick={() => this.getFiles()}> Get Files</button>
+          </p>
+          }
+        </header>
+      </div>
+    )
+  }
+}
+
+export default App
+
+//?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-10-25T02:52:02Z&st=2023-10-24T18:52:02Z&spr=https&sig=mb0bsH0KrU%2Bvo9kFSi66ahif1tdkcZnen4FfKqqjMIQ%3D
