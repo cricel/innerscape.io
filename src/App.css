@@ -1,11 +1,24 @@
-/* #root {
-  min-width: 100%;
+#root {
   height: 100vh;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-} */
+}
 
-/* .container{
-  background-color: green;
-} */
+#left-panel{
+  float: left;
+  width: 30%;
+  height: 100%;
+  overflow: scroll;
+}
+
+#middle-panel{
+  float: left;
+  width: 5%;
+  height: 100%;
+  overflow: scroll;
+}
+
+#right-panel{
+  float: left;
+  width: 65%;
+  height: 100%;
+  overflow: scroll;
+}
